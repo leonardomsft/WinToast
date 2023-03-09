@@ -102,7 +102,7 @@ int wmain(int argc, LPWSTR *argv)
     LPWSTR appUserModelID = L"Wintoast";
     LPWSTR text = NULL;
     LPWSTR imagePath = NULL;
-    LPWSTR attribute = L"some text";
+    LPWSTR attribute = L"No attributes...";
     std::vector<std::wstring> actions;
     INT64 expiration = 0;
    

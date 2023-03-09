@@ -180,6 +180,16 @@ namespace Util {
         return (written > 0) ? S_OK : E_FAIL;
     }
 
+    inline HRESULT defaultExecutableDir(_In_ WCHAR* path, _In_ DWORD nSize = MAX_PATH) {
+        DWORD written = GetModuleFileNameExW(GetCurrentProcess(), nullptr, path, nSize);
+
+        WCHAR * pDir = wcsrchr(path, L'\\');
+        memset(pDir, L'\0', 2);
+
+        DEBUG_MSG("Default executable Directory: " << path);
+        return (written > 0) ? S_OK : E_FAIL;
+    }
+
 
     inline HRESULT defaultShellLinksDirectory(_In_ WCHAR* path, _In_ DWORD nSize = MAX_PATH) {
         DWORD written = GetEnvironmentVariableW(L"APPDATA", path, nSize);
@@ -423,10 +433,13 @@ enum WinToast::ShortcutResult WinToast::createShortcut() {
     if (SUCCEEDED(hr))
         return wasChanged ? SHORTCUT_WAS_CHANGED : SHORTCUT_UNCHANGED;
 
-    //hr = createShellLinkHelper();
-    //if (SUCCEEDED(hr))
-    return SHORTCUT_WAS_CREATED;
-    //return SHORTCUT_CREATE_FAILED;
+    hr = createShellLinkHelper();
+    if (SUCCEEDED(hr))
+    {
+        return SHORTCUT_WAS_CREATED;
+
+    }
+    return SHORTCUT_CREATE_FAILED;
 }
 
 bool WinToast::initialize() {
@@ -438,7 +451,7 @@ bool WinToast::initialize() {
 
     if (FAILED(DllImporter::SetCurrentProcessExplicitAppUserModelID(_aumi.c_str()))) 
     {
-        DEBUG_MSG(L"Error while attaching the AUMI to the current proccess =(");
+        DEBUG_MSG(L"Error while attaching the AUMI to the current proccess");
         return false;
     }
 
@@ -446,13 +459,15 @@ bool WinToast::initialize() {
     return _isInitialized;
 }
 
-HRESULT	WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) {
+HRESULT	WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) 
+{
 	WCHAR path[MAX_PATH] = { L'\0' };
     Util::defaultShellLinkPath(_appName, path);
     // Check if the file exist
     DWORD attr = GetFileAttributesW(path);
-    if (attr >= 0xFFFFFFF) {
-        DEBUG_MSG("Error, shell link not found. Try to create a new one in: " << path);
+    if (attr >= 0xFFFFFFF) 
+    {
+        DEBUG_MSG("Error, shell link not found. Attempting to create a new one in: " << path);
         return E_FAIL;
     }
 
@@ -506,10 +521,17 @@ HRESULT	WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) {
 
 
 HRESULT	WinToast::createShellLinkHelper() {
-	WCHAR   exePath[MAX_PATH]{L'\0'};
-	WCHAR	slPath[MAX_PATH]{L'\0'};
+    WCHAR	slPath[MAX_PATH]{ L'\0' };
+    WCHAR   exePath[MAX_PATH]{ L'\0' };
+    WCHAR   exeDir[MAX_PATH]{ L'\0' };
+    WCHAR * pDir;
     Util::defaultShellLinkPath(_appName, slPath);
     Util::defaultExecutablePath(exePath);
+    Util::defaultExecutableDir(exeDir);
+
+    //pDir = wcsrchr(exeDir, L'\\') ;
+    //memset(pDir, L'\0', 2);
+
     ComPtr<IShellLinkW> shellLink;
     HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
     if (SUCCEEDED(hr)) {
@@ -517,7 +539,7 @@ HRESULT	WinToast::createShellLinkHelper() {
         if (SUCCEEDED(hr)) {
             hr = shellLink->SetArguments(L"");
             if (SUCCEEDED(hr)) {
-                hr = shellLink->SetWorkingDirectory(exePath);
+                hr = shellLink->SetWorkingDirectory(exeDir);
                 if (SUCCEEDED(hr)) {
                     ComPtr<IPropertyStore> propertyStore;
                     hr = shellLink.As(&propertyStore);
@@ -675,13 +697,6 @@ void WinToast::clear() {
     _buffer.clear();
 }
 
-//
-// Available as of Windows 10 Anniversary Update
-// Ref: https://docs.microsoft.com/en-us/windows/uwp/design/shell/tiles-and-notifications/adaptive-interactive-toasts
-//
-// NOTE: This will add a new text field, so be aware when iterating over
-//       the toast's text fields or getting a count of them.
-//
 HRESULT WinToast::setAttributionTextFieldHelper(_In_ IXmlDocument *xml, _In_ const std::wstring& text) {
     Util::createElement(xml, L"binding", L"text", { L"placement" });
     ComPtr<IXmlNodeList> nodeList;
