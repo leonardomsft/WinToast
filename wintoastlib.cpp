@@ -1,21 +1,9 @@
 #include "wintoastlib.h"
-#include <memory>
-#include <assert.h>
-
-#pragma comment(lib,"shlwapi")
-#pragma comment(lib,"user32")
-
-#ifdef NDEBUG
-    #define DEBUG_MSG(str) do { } while ( false )
- #else
-    #define DEBUG_MSG(str) do { std::wcout << str << std::endl; } while( false )
-#endif
 
 typedef LONG NTSTATUS, *PNTSTATUS;
-
+typedef NTSTATUS(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
 #define STATUS_SUCCESS (0x00000000)
 
-typedef NTSTATUS(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
 
 RTL_OSVERSIONINFOW GetRealOSVersion() {
 	HMODULE hMod = ::GetModuleHandleW(L"ntdll.dll");
@@ -176,17 +164,15 @@ public:
 namespace Util {
     inline HRESULT defaultExecutablePath(_In_ WCHAR* path, _In_ DWORD nSize = MAX_PATH) {
         DWORD written = GetModuleFileNameExW(GetCurrentProcess(), nullptr, path, nSize);
-        DEBUG_MSG("Default executable path: " << path);
+        //std::wcout << L"Default executable path: " << path << std::endl;
         return (written > 0) ? S_OK : E_FAIL;
     }
 
     inline HRESULT defaultExecutableDir(_In_ WCHAR* path, _In_ DWORD nSize = MAX_PATH) {
         DWORD written = GetModuleFileNameExW(GetCurrentProcess(), nullptr, path, nSize);
-
         WCHAR * pDir = wcsrchr(path, L'\\');
         memset(pDir, L'\0', 2);
-
-        DEBUG_MSG("Default executable Directory: " << path);
+        //std::wcout << L"Default executable directory: " << path << std::endl;
         return (written > 0) ? S_OK : E_FAIL;
     }
 
@@ -197,7 +183,7 @@ namespace Util {
         if (SUCCEEDED(hr)) {
             errno_t result = wcscat_s(path, nSize, DEFAULT_SHELL_LINKS_PATH);
             hr = (result == 0) ? S_OK : E_INVALIDARG;
-            DEBUG_MSG("Default shell link path: " << path);
+            //std::wcout << L"APPDATA directory: " << path << std::endl;
         }
         return hr;
     }
@@ -208,7 +194,8 @@ namespace Util {
             const std::wstring appLink(appname + DEFAULT_LINK_FORMAT);
             errno_t result = wcscat_s(path, nSize, appLink.c_str());
             hr = (result == 0) ? S_OK : E_INVALIDARG;
-            DEBUG_MSG("Default shell link file path: " << path);
+            //std::wcout << L"Shell link file path: " << path << std::endl;
+
         }
         return hr;
     }
@@ -349,7 +336,8 @@ WinToast::WinToast() :
     _hasCoInitialized(false)
 {
 	if (!isCompatible()) {
-		DEBUG_MSG(L"Warning: Your system is not compatible with this library ");
+        std::wcout << L"Warning: Your system is not compatible with this library " << std::endl;
+
 	}
 }
 
@@ -366,7 +354,7 @@ void WinToast::setAppName(_In_ const std::wstring& appName) {
 
 void WinToast::setAppUserModelId(_In_ const std::wstring& aumi) {
     _aumi = aumi;
-    DEBUG_MSG(L"Default App User Model Id: " << _aumi.c_str());
+
 }
 
 bool WinToast::isCompatible() {
@@ -398,7 +386,7 @@ std::wstring WinToast::configureAUMI(_In_ const std::wstring &companyName,
     }
 
     if (aumi.length() > SCHAR_MAX) {
-        DEBUG_MSG("Error: max size allowed for AUMI: 128 characters.");
+        std::wcout << L"Error: max size allowed for AUMI: 128 characters." << std::endl;
     }
     return aumi;
 }
@@ -406,12 +394,13 @@ std::wstring WinToast::configureAUMI(_In_ const std::wstring &companyName,
 
 enum WinToast::ShortcutResult WinToast::createShortcut() {
     if (_aumi.empty() || _appName.empty()) {
-        DEBUG_MSG(L"Error: App User Model Id or Appname is empty!");
+        std::wcout << L"Error: App User Model Id or Appname is empty!" << std::endl;
+
         return SHORTCUT_MISSING_PARAMETERS;
     }
 
     if (!isCompatible()) {
-        DEBUG_MSG(L"Your OS is not compatible with this library! =(");
+        std::wcout << L"Your OS is not compatible with this library!" << std::endl;
         return SHORTCUT_INCOMPATIBLE_OS;
     }
 
@@ -419,7 +408,7 @@ enum WinToast::ShortcutResult WinToast::createShortcut() {
         HRESULT initHr = CoInitializeEx(NULL, COINIT::COINIT_MULTITHREADED);
         if (initHr != RPC_E_CHANGED_MODE) {
             if (FAILED(initHr) && initHr != S_FALSE) {
-                DEBUG_MSG(L"Error on COM library initialization!");
+                std::wcout << L"Error on COM library initialization!" << std::endl;
                 return SHORTCUT_COM_INIT_FAILURE;
             }
             else {
@@ -451,7 +440,8 @@ bool WinToast::initialize() {
 
     if (FAILED(DllImporter::SetCurrentProcessExplicitAppUserModelID(_aumi.c_str()))) 
     {
-        DEBUG_MSG(L"Error while attaching the AUMI to the current proccess");
+        std::wcout << L"Error while attaching the AUMI to the current proccess" << std::endl;
+
         return false;
     }
 
@@ -467,8 +457,14 @@ HRESULT	WinToast::validateShellLinkHelper(_Out_ bool& wasChanged)
     DWORD attr = GetFileAttributesW(path);
     if (attr >= 0xFFFFFFF) 
     {
-        DEBUG_MSG("Error, shell link not found. Attempting to create a new one in: " << path);
+        std::wcout << L"Error, shortcut not found. Attempting to create one at: " << path << std::endl;
+
         return E_FAIL;
+    }
+    else {
+
+        std::wcout << L"Shortcut found at: " << path << std::endl;
+
     }
 
     // Let's load the file as shell link to validate.
@@ -495,8 +491,8 @@ HRESULT	WinToast::validateShellLinkHelper(_Out_ bool& wasChanged)
                         hr = DllImporter::PropVariantToString(appIdPropVar, AUMI, MAX_PATH);
                         wasChanged = false;
                         if (FAILED(hr) || _aumi != AUMI) {
-                            // AUMI Changed for the same app, let's update the current value! =)
                             wasChanged = true;
+                            std::wcout << L"The AUMI found in the shortcut doesn't match the one specified. Attempting to update the shortcut." << std::endl;
                             PropVariantClear(&appIdPropVar);
                             hr = InitPropVariantFromString(_aumi.c_str(), &appIdPropVar);
                             if (SUCCEEDED(hr)) {
@@ -505,6 +501,9 @@ HRESULT	WinToast::validateShellLinkHelper(_Out_ bool& wasChanged)
                                     hr = propertyStore->Commit();
                                     if (SUCCEEDED(hr) && SUCCEEDED(persistFile->IsDirty())) {
                                         hr = persistFile->Save(path, TRUE);
+                                        if (SUCCEEDED(hr)) {
+                                            std::wcout << L"Success: Shortcut AUMI updated to: " << _aumi << std::endl;
+                                        }
                                     }
                                 }
                             }
@@ -524,13 +523,9 @@ HRESULT	WinToast::createShellLinkHelper() {
     WCHAR	slPath[MAX_PATH]{ L'\0' };
     WCHAR   exePath[MAX_PATH]{ L'\0' };
     WCHAR   exeDir[MAX_PATH]{ L'\0' };
-    WCHAR * pDir;
     Util::defaultShellLinkPath(_appName, slPath);
     Util::defaultExecutablePath(exePath);
     Util::defaultExecutableDir(exeDir);
-
-    //pDir = wcsrchr(exeDir, L'\\') ;
-    //memset(pDir, L'\0', 2);
 
     ComPtr<IShellLinkW> shellLink;
     HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
@@ -555,6 +550,9 @@ HRESULT	WinToast::createShellLinkHelper() {
                                     hr = shellLink.As(&persistFile);
                                     if (SUCCEEDED(hr)) {
                                         hr = persistFile->Save(slPath, TRUE);
+                                        if (SUCCEEDED(hr)) {
+
+                                        }
                                     }
                                 }
                             }
@@ -571,11 +569,12 @@ HRESULT	WinToast::createShellLinkHelper() {
 INT64 WinToast::showToast(_In_ const WinToastTemplate& toast, _In_  IWinToastHandler* handler)  {
     INT64 id = -1;
     if (!isInitialized()) {
-        DEBUG_MSG("Error when launching the toast. WinToast is not initialized =(");
+        std::wcout << L"Error when launching the toast. WinToast is not initialized" << std::endl;
+
         return id;
     }
     if (!handler) {
-        DEBUG_MSG("Error when launching the toast. handler cannot be null.");
+        std::wcout << L"Error when launching the toast. handler cannot be null." << std::endl;
         return id;
     }
 
@@ -618,7 +617,8 @@ INT64 WinToast::showToast(_In_ const WinToastTemplate& toast, _In_  IWinToastHan
                                 ? hr : setAudioFieldHelper(xmlDocument.Get(), toast.audioPath(), toast.audioOption());
                         }
                     } else {
-                        DEBUG_MSG("Modern features (Actions/Sounds/Attributes) not supported in this os version");
+                        std::wcout << L"Modern features (Actions/Sounds/Attributes) not supported in this os version" << std::endl;
+
                     }
 
                     if (SUCCEEDED(hr)) {
@@ -627,7 +627,8 @@ INT64 WinToast::showToast(_In_ const WinToastTemplate& toast, _In_  IWinToastHan
                             ComPtr<IToastNotification> notification;
                             hr = notificationFactory->CreateToastNotification(xmlDocument.Get(), &notification);
                             if (SUCCEEDED(hr)) {
-                                INT64 expiration = 0, relativeExpiration = toast.expiration();
+                                INT64 expiration = 0;
+                                INT64 relativeExpiration = toast.expiration();
                                 if (relativeExpiration > 0) {
                                     MyDateTime expirationDateTime(relativeExpiration);
                                     expiration = expirationDateTime;
@@ -642,7 +643,6 @@ INT64 WinToast::showToast(_In_ const WinToastTemplate& toast, _In_  IWinToastHan
                                     if (SUCCEEDED(hr)) {
                                         id = guid.Data1;
                                         _buffer[id] = notification;
-                                        DEBUG_MSG("xml: " << Util::AsString(xmlDocument));
                                         hr = notifier->Show(notification.Get());
                                     }
                                 }
@@ -670,7 +670,8 @@ ComPtr<IToastNotifier> WinToast::notifier(_In_ bool* succeded) const  {
 
 bool WinToast::hideToast(_In_ INT64 id) {
     if (!isInitialized()) {
-        DEBUG_MSG("Error when hiding the toast. WinToast is not initialized.");
+        std::wcout << L"Error when hiding the toast. WinToast is not initialized." << std::endl;
+
         return false;
     }
     const bool find = _buffer.find(id) != _buffer.end();
@@ -842,7 +843,7 @@ HRESULT WinToast::addActionHelper(_In_ IXmlDocument *xml, _In_ const std::wstrin
                             if (SUCCEEDED(hr))
                                         hr = toastElement->SetAttribute(WinToastStringWrapper(L"template").Get(), WinToastStringWrapper(L"ToastGeneric").Get());
                             if (SUCCEEDED(hr))
-                                        hr = toastElement->SetAttribute(WinToastStringWrapper(L"duration").Get(), WinToastStringWrapper(L"long").Get());
+                                        hr = toastElement->SetAttribute(WinToastStringWrapper(L"duration").Get(), WinToastStringWrapper(L"short").Get());
                             if (SUCCEEDED(hr)) {
                                 ComPtr<IXmlElement> actionsElement;
                                 hr = xml->CreateElement(WinToastStringWrapper(L"actions").Get(), &actionsElement);
