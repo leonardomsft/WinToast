@@ -1,6 +1,6 @@
 # WinToast - Toast Notification Generator
 
-Utility to generate and send local toast notifications on Windows 10. Toast notifications can include with text, attributes, images, and action buttons.
+Utility to generate and send local toast notifications on Windows 10/11. Toast notifications can include with text, attributes, images, and action buttons.
 
 # Command line switches
 ```
@@ -29,7 +29,14 @@ Utility to generate and send local toast notifications on Windows 10. Toast noti
 
 # Examples
 
-WinToast.exe --text "My Toast Notification" --attribute "My Attributes" --appname "WinToast" --aumi "WinToast" --expirems 10000 --action Yes --action No --image "C:\Tools\189122.png"
+WinToast.exe --text "Pizza tonight?" --attribute "Napoletana" --action Yes --action No
+
+![Alt text](screenshots/image1.png)
+
+
+WinToast.exe --image "C:\Temp\189122.png"
+
+![Alt text](screenshots/image3.png)
 
 
 # More on Toast Notifications
@@ -38,9 +45,9 @@ WinToast.exe --text "My Toast Notification" --attribute "My Attributes" --appnam
 The App sending a toast notification must have a shell shortcut with the App User Model ID peroperty specified, otherwise the notification may fail or not display properly. Wintoast automatically creates and maintains this shortcut at the APPDATA location.
   
 ## Expiration vs Duration
-Expiration defines how long the toast notification will remain in the Action Center. Duration is the time it will be visible on the user's screen.
-Before expiration, the notification can still be seen in the Action Center (provided that the user hasn't dismissed it). After expiration, it's deleted and completely disappears.
-Duration depends on the template used and can be either "short" or "long". Wintoast uses the "ToastGeneric" template and defines "short" notifications.
+Expiration defines how long the toast notification will remain in the Action Center. Duration is the time it will be visible on the screen.
+Before expiration, the notification can still be seen in the Action Center. After expiration, it's deleted and completely disappears.
+Duration depends on the template used and can be either "short" or "long". Wintoast uses the "ToastGeneric" template and defines "short" notifications, which results in a duration of approximately 6 seconds, after which the toast times out.
 
 # Resources
 
