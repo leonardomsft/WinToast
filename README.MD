@@ -39,3 +39,7 @@ Send a local toast notification from a WRL C++ desktop app
   https://learn.microsoft.com/en-us/windows/apps/design/shell/tiles-and-notifications/send-local-toast-desktop-cpp-wrl
 
 
+How to enable desktop toast notifications through an AppUserModelID
+
+https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/hh802762(v=vs.85)
+
