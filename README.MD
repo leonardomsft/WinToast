@@ -8,7 +8,6 @@ Usage: WinToast.exe [SWITCHES]
       --text          (optional) : sets the text for the notifications
       --attribute     (optional) : sets the attribute for the notification
       --action        (optional) : sets the actions in buttons
-      --aumi          (optional) : sets the App User Model Id
       --appname       (optional) : sets the default appname
       --appid         (optional) : sets the App User Model Id (AUMI)
       --expires       (optional) : sets the expiration time in seconds
