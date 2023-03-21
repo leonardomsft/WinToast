@@ -1,8 +1,8 @@
 # WinToast - Toast Notification Generator
 
-Utility to generate toast notifications on Windows 10/11. Toast notifications can include text, attributes, images, and action buttons.
+Command-line utility to generate toast notifications on Windows 10/11. Toast notifications can include text, attributes, images, and action buttons.
 
-# Command line switches
+# Switches
 ```
 Usage: WinToast.exe [SWITCHES]
       --text          (optional) : sets the text for the notifications
