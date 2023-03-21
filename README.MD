@@ -40,6 +40,10 @@ Expiration defines how long the toast notification will remain in the Action Cen
 Before expiration, the notification can still be seen in the Action Center. After expiration, it's deleted and completely disappears.
 Duration depends on the template used and can be either "short" or "long". Wintoast uses the "ToastGeneric" template and defines "short" notifications, which results in a duration of approximately 6 seconds, after which the toast times out.
 
+# Download
+
+https://github.com/leonardomsft/WinToast/releases/download/v1/WinToast.exe
+
 # Resources
 
 Send a local toast notification from a WRL C++ desktop app
