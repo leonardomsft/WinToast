@@ -36,7 +36,7 @@ https://github.com/leonardomsft/WinToast/releases/download/v1/WinToast.exe
 # More on Toast Notifications
 
 ## App User Model Id (AUMI)
-The App sending a toast notification must have a shell shortcut with the App User Model ID peroperty specified, otherwise the notification may fail or not display properly. Wintoast automatically creates and maintains this shortcut at the APPDATA location.
+Any app sending a toast notification requires a shell shortcut specifying the App User Model ID property, otherwise the notification may not display correcly. Wintoast automatically creates and maintains this shortcut in the %APPDATA% location.
   
 ## Expiration vs Duration
 Expiration defines how long the toast notification will remain in the Action Center. Duration is the time it will be visible on the screen.
