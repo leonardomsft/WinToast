@@ -18,26 +18,26 @@ public:
     void toastDismissed(WinToastDismissalReason state) const {
         switch (state) {
         case UserCanceled:
-            std::wcout << L"Toast dismissed by the user" << std::endl;
+            std::wcout << L"Toast was dismissed by the user" << std::endl;
             exit(1);
             break;
         case TimedOut:
-            std::wcout << L"Toast timed out" << std::endl;
+            std::wcout << L"Toast timed out (was not clicked)" << std::endl;
             exit(2);
             break;
         case ApplicationHidden:
-            std::wcout << L"Toast was hidden by using ToastNotifier.hide()" << std::endl;
+            std::wcout << L"Toast was hidden by calling ToastNotifier.hide()" << std::endl;
             exit(3);
             break;
         default:
-            std::wcout << L"Toast not activated" << std::endl;
+            std::wcout << L"Toast was not activated (not clicked)" << std::endl;
             exit(4);
             break;
         }
     }
 
     void toastFailed() const {
-        std::wcout << L"Error showing current toast" << std::endl;
+        std::wcout << L"Error showing toast" << std::endl;
         exit(5);
     }
 };
@@ -71,27 +71,31 @@ enum Results {
 #define COMMAND_AUDIOSTATE  L"--audio-state"
 
 void print_help() {
-	std::wcout << "WinToast [OPTIONS]" << std::endl;
-    std::wcout << "\t" << COMMAND_TEXT << L" : Set the text for the notifications" << std::endl;
-    std::wcout << "\t" << COMMAND_ATTRIBUTE << L" : set the attribute for the notification" << std::endl;
-    std::wcout << "\t" << COMMAND_ACTION << L" : Set the actions in buttons" << std::endl;
-	std::wcout << "\t" << COMMAND_AUMI << L" : Set the App User Model Id" << std::endl;
-	std::wcout << "\t" << COMMAND_APPNAME << L" : Set the default appname" << std::endl;
-	std::wcout << "\t" << COMMAND_APPID << L" : Set the App User Model Id (AUMI)" << std::endl;
-	std::wcout << "\t" << COMMAND_EXPIRES << L" : Set the expiration time in seconds" << std::endl;
-	std::wcout << "\t" << COMMAND_IMAGE << L" : set the image absolute path" << std::endl;
-    std::wcout << "\t" << COMMAND_SHORTCUT << L" : just create the shortcut for the app" << std::endl;
-    std::wcout << "\t" << COMMAND_AUDIOSTATE << L" : set the audio state: Default = 0, Silent = 1, Loop = 2" << std::endl;
-    std::wcout << "\t" << COMMAND_HELP << L" : Print the help description" << std::endl;
+	std::wcout << "\n WinToast - Toast Notification Generator \n https://github.com/leonardomsft/WinToast \n" << std::endl;
+    std::wcout << "  Usage: WinToast.exe [SWITCHES]" << std::endl;
+    std::wcout << "\t" << COMMAND_TEXT << L"\t\t(optional) : sets the text for the notifications" << std::endl;
+    std::wcout << "\t" << COMMAND_ATTRIBUTE << L"\t(optional) : sets the attribute for the notification" << std::endl;
+    std::wcout << "\t" << COMMAND_ACTION << L"\t(optional) : sets the actions in buttons" << std::endl;
+	std::wcout << "\t" << COMMAND_AUMI << L"\t\t(optional) : sets the App User Model Id" << std::endl;
+	std::wcout << "\t" << COMMAND_APPNAME << L"\t(optional) : sets the default appname" << std::endl;
+	std::wcout << "\t" << COMMAND_APPID << L"\t\t(optional) : sets the App User Model Id (AUMI)" << std::endl;
+	std::wcout << "\t" << COMMAND_EXPIRES << L"\t(optional) : sets the expiration time in seconds" << std::endl;
+	std::wcout << "\t" << COMMAND_IMAGE << L"\t\t(optional) : sets the image absolute path" << std::endl;
+    std::wcout << "\t" << COMMAND_SHORTCUT << L"\t(optional) : creates the shortcut for the app" << std::endl;
+    std::wcout << "\t" << COMMAND_AUDIOSTATE << L"\t(optional) : sets the audio state: Default = 0, Silent = 1, Loop = 2" << std::endl;
+    std::wcout << "\t" << COMMAND_HELP << L"\t\t(optional) : prints this help" << std::endl << std::endl;
+    std::wcout << "  Examples: " << std::endl;
+    std::wcout << "\t WinToast.exe --text \"Pizza tonight?\" --attribute \"Napoletana\" --action Yes --action No" << std::endl;
+    std::wcout << "\t WinToast.exe --image \"C:\\Temp\\189122.png\"" << std::endl;
+    std::wcout << "\n" << std::endl;
 }
 
 
 int wmain(int argc, LPWSTR *argv)
 {
-	if (argc == 1) {
-		print_help();
-		return 0;
-	}
+    if (argc == 1) {
+        print_help();
+    }
 
     if (!WinToast::isCompatible()) {
         std::wcerr << L"Error, your system in not supported!" << std::endl;
@@ -163,10 +167,13 @@ int wmain(int argc, LPWSTR *argv)
     }
     if (expiration == 0) {
         expiration = 60;
-        std::wcout << L"Expiration not specified, using: "<< expiration << L" seconds" << std::endl;
+        std::wcout << L"Expiration not specified, using: " << expiration << L" seconds" << std::endl;
     }
     else {
         expiration = expiration * 1000;
+    }
+    if (!imagePath) {
+        std::wcout << L"Image not specified, using no image." << std::endl;
     }
 
 
