@@ -3,6 +3,8 @@
 
 using namespace WinToastLib;
 
+
+//callback handlers
 class CustomHandler : public IWinToastHandler {
 public:
     void toastActivated() const {
@@ -61,7 +63,6 @@ enum Results {
 #define COMMAND_TEXT		L"--text"
 #define COMMAND_ATTRIBUTE   L"--attribute"
 #define COMMAND_ACTION		L"--action"
-#define COMMAND_AUMI		L"--aumi"
 #define COMMAND_APPNAME		L"--appname"
 #define COMMAND_APPID		L"--appid"
 #define COMMAND_EXPIRES	    L"--expires"
@@ -76,7 +77,6 @@ void print_help() {
     std::wcout << "\t" << COMMAND_TEXT << L"\t\t(optional) : sets the text for the notifications" << std::endl;
     std::wcout << "\t" << COMMAND_ATTRIBUTE << L"\t(optional) : sets the attribute for the notification" << std::endl;
     std::wcout << "\t" << COMMAND_ACTION << L"\t(optional) : sets the actions in buttons" << std::endl;
-	std::wcout << "\t" << COMMAND_AUMI << L"\t\t(optional) : sets the App User Model Id" << std::endl;
 	std::wcout << "\t" << COMMAND_APPNAME << L"\t(optional) : sets the default appname" << std::endl;
 	std::wcout << "\t" << COMMAND_APPID << L"\t\t(optional) : sets the App User Model Id (AUMI)" << std::endl;
 	std::wcout << "\t" << COMMAND_EXPIRES << L"\t(optional) : sets the expiration time in seconds" << std::endl;
@@ -122,7 +122,7 @@ int wmain(int argc, LPWSTR *argv)
             expiration = wcstol(argv[++i], NULL, 10);
         else if (!wcscmp(COMMAND_APPNAME, argv[i]))
             appName = argv[++i];
-        else if (!wcscmp(COMMAND_AUMI, argv[i]) || !wcscmp(COMMAND_APPID, argv[i]))
+        else if (!wcscmp(COMMAND_APPID, argv[i]))
             appUserModelID = argv[++i];
 		else if (!wcscmp(COMMAND_TEXT, argv[i]))
 			text = argv[++i];

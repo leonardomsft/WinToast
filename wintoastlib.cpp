@@ -260,11 +260,8 @@ namespace Util {
                  {
                      ToastDismissalReason reason;
                      if (SUCCEEDED(e->get_Reason(&reason)))
-                     {
-                         if (reason == ToastDismissalReason_UserCanceled && expirationTime && MyDateTime::Now() >= expirationTime)
-                            reason = ToastDismissalReason_TimedOut;
                          eventHandler->toastDismissed(static_cast<IWinToastHandler::WinToastDismissalReason>(reason));
-                     }
+
                      return S_OK;
                  }).Get(), &dismissedToken);
             if (SUCCEEDED(hr)) {
