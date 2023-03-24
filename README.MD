@@ -19,14 +19,13 @@ Usage: WinToast.exe [SWITCHES]
 
 # Examples
 
-WinToast.exe --text "Pizza tonight?" --attribute "Napoletana" --action Yes --action No
-
-![Alt text](screenshots/image1.png)
-
-
 WinToast.exe --image "C:\Temp\189122.png"
 
 ![Alt text](screenshots/image3.png)
+
+WinToast.exe --text "Pizza tonight?" --attribute "Napoletana" --action Yes --action No
+
+![Alt text](screenshots/image1.png)
 
 
 # Download
