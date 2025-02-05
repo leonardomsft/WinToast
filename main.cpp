@@ -118,7 +118,7 @@ void CheckUserState()
 
     case QUNS_BUSY:
 
-        std::wcerr << "WARNING - QUNS_BUSY: A full-screen application is running or a Presentation is in progres." << std::endl;
+        std::wcerr << "WARNING - QUNS_BUSY: A full-screen application is running or a Presentation is in progress." << std::endl;
 
         break;
 
