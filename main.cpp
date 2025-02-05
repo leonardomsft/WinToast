@@ -159,10 +159,6 @@ void CheckUserState()
 
 int wmain(int argc, LPWSTR *argv)
 {
-    if (argc == 1) {
-        print_help();
-    }
-
     CheckUserState();
 
     if (!WinToast::isCompatible()) {
