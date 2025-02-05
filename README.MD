@@ -59,3 +59,8 @@ How to enable desktop toast notifications through an AppUserModelID
 
 https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/hh802762(v=vs.85)
 
+
+SHQueryUserNotificationState function (shellapi.h)
+
+https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-query_user_notification_state
+
