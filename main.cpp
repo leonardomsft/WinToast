@@ -71,7 +71,8 @@ enum Results {
 #define COMMAND_SHORTCUT	L"--only-create-shortcut"
 #define COMMAND_AUDIOSTATE  L"--audio-state"
 
-void print_help() {
+void print_help() 
+{
 	std::wcout << "\n WinToast - Toast Notification Generator \n https://github.com/leonardomsft/WinToast \n" << std::endl;
     std::wcout << "  Usage: WinToast.exe [SWITCHES]" << std::endl;
     std::wcout << "\t" << COMMAND_TEXT << L"\t\t(optional) : sets the text for the notifications" << std::endl;
@@ -90,12 +91,79 @@ void print_help() {
     std::wcout << "\n" << std::endl;
 }
 
+void CheckUserState()
+{
+    HRESULT hr = E_FAIL;
+
+    QUERY_USER_NOTIFICATION_STATE userstate = {};
+
+    hr = SHQueryUserNotificationState(&userstate);
+
+    if (FAILED(hr))
+    {
+
+        std::wcerr << "ERROR calling SHQueryUserNotificationState: " << hr << std::endl;
+
+        exit;
+
+    }
+
+    switch (userstate)
+    {
+    case QUNS_NOT_PRESENT:
+
+        std::wcerr << "WARNING - QUNS_NOT_PRESENT: The user is not present (screen saver is running, the machine is locked, or a nonactive Fast User Switching session is in progress)." << std::endl;
+
+        break;
+
+    case QUNS_BUSY:
+
+        std::wcerr << "WARNING - QUNS_BUSY: A full-screen application is running or a Presentation is in progres." << std::endl;
+
+        break;
+
+    case QUNS_RUNNING_D3D_FULL_SCREEN:
+
+        std::wcerr << "WARNING - QUNS_RUNNING_D3D_FULL_SCREEN: A full-screen (exclusive mode) Direct3D application is running." << std::endl;
+
+        break;
+
+    case QUNS_PRESENTATION_MODE:
+
+        std::wcerr << "WARNING - QUNS_PRESENTATION_MODE: Windows presentation mode is active." << std::endl;
+
+        break;
+
+    case QUNS_ACCEPTS_NOTIFICATIONS:
+
+        std::wcout << "INFO: Notifications are not suppressed." << std::endl;
+
+        return;
+
+    case QUNS_QUIET_TIME:
+
+        std::wcerr << "WARNING - QUNS_QUIET_TIME: User is in 'quiet time'." << std::endl;
+
+        break;
+
+    case QUNS_APP:
+
+        std::wcerr << "WARNING - QUNS_APP: A Windows Store app is running." << std::endl;
+
+        break;
+
+    }
+    std::wcerr << "Notifications are suppressed." << std::endl;
+
+}
 
 int wmain(int argc, LPWSTR *argv)
 {
     if (argc == 1) {
         print_help();
     }
+
+    CheckUserState();
 
     if (!WinToast::isCompatible()) {
         std::wcerr << L"Error, your system in not supported!" << std::endl;

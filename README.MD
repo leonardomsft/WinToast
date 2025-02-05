@@ -17,6 +17,12 @@ Usage: WinToast.exe [SWITCHES]
       --help          (optional) : prints this help
 ```
 
+# User Notification State
+
+WinToast.exe can help identify why notifications are not displaying by revealing the current notification state for the user:
+
+![Alt text](screenshots/busy.png)
+
 # Examples
 
 WinToast.exe --image "C:\Temp\189122.png"
