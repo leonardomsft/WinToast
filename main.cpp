@@ -229,16 +229,10 @@ int wmain(int argc, LPWSTR *argv)
         appUserModelID = L"WinToast.ID";
         std::wcout << L"App User Model ID (AUMI) not specified, using: " << appUserModelID << std::endl;
     }
-    if (expiration == 0) {
-        expiration = 60;
-        std::wcout << L"Expiration not specified, using: " << expiration << L" seconds" << std::endl;
-    }
-    else {
-        expiration = expiration * 1000;
-    }
     if (!imagePath) {
         std::wcout << L"Image not specified, using no image." << std::endl;
     }
+
 
 
     WinToast::instance()->setAppName(appName);
@@ -258,7 +252,11 @@ int wmain(int argc, LPWSTR *argv)
 
 	for (auto const &action : actions)
         templ.addAction(action);
-    if (expiration)
+    if (expiration){
+        std::wcout << L"Setting Expiration to: " << expiration << L" seconds" << std::endl;
+        expiration = expiration * 1000;
+    }
+
         templ.setExpiration(expiration);
     if (withImage)
         templ.setImagePath(imagePath);
